@@ -48,6 +48,7 @@ var createTaskE1 = function(taskDataObj) {
 
      // add task id as a custom attribute
      listItemE1.setAttribute("data-task-id", taskIdCounter);
+     listItemE1.setAttribute("draggable", "true");
      
      // create div to hold task info and add to list item
      var taskInfoE1 = document.createElement("div");
@@ -179,8 +180,46 @@ var taskButtonHandler = function(event) {
     }
 };
 
+var dragTaskHandler = function(event) {
+    var taskId = event.target.getAttribute("data-task-id");
+    event.dataTransfer.setData("text/plain", taskId);
+    var getId = event.dataTransfer.getData("text/plain");
+};
+
+var dropZoneDragHandler = function(event) {
+    var taskListE1 = event.target.closest(".task-list");
+    if (taskListE1) {
+        event.preventDefault();
+    }
+};
+
+var dropTaskHandler = function(event) {
+    var id = event.dataTransfer.getData("text/plain");
+    var draggableElement = document.querySelector("[data-task-id='" + id + "']");
+    var dropZoneE1 = event.target.closest(".task-list");
+    var statusType = dropZoneE1.id;
+    // set status of task based on dropZone id
+    var statusSelectE1 = draggableElement.querySelector("select[name='status-change']");
+    if (statusType === "tasks-to-do") {
+        statusSelectE1.selectedIndex = 0;
+    }
+    else if (statusType === "tasks-in-progress") {
+        statusSelectE1.selectedIndex = 1;
+    }
+    else if (statusType === "tasks-completed") {
+        statusSelectE1.selectedIndex = 2;
+    }
+    dropZoneE1.appendChild(draggableElement);
+};
+
 pageContentE1.addEventListener("change", taskStatusChangeHandler);
 
 formE1.addEventListener("submit", taskFormHandler);
 
 pageContentE1.addEventListener("click", taskButtonHandler);
+
+pageContentE1.addEventListener("dragstart", dragTaskHandler);
+
+pageContentE1.addEventListener("dragover", dropZoneDragHandler);
+
+pageContentE1.addEventListener("drop", dropTaskHandler);
