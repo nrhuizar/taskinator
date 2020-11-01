@@ -275,6 +275,56 @@ var dragLeaveHandler = function(event) {
 
 var saveTasks = function() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
+var loadTasks = function() {
+    // Get task items from localStorage
+    tasks = localStorage.getItem("tasks");
+ 
+    if (!tasks) {
+        tasks = [];
+        return false
+    }
+    // Converts tasks from the string format back into an array of objects
+    tasks = JSON.parse(tasks);
+
+    for (var i = 0; i < tasks.length; i++) {
+        tasks[i].id = taskIdCounter;
+        var listItemE1 = document.createElement("li");
+        listItemE1.className = "task-item";
+
+        // add task id as a custom attribute
+        listItemE1.setAttribute("data-task-id", tasks[i].id);
+        listItemE1.setAttribute("draggable", "true");
+     
+        // create div to hold task info and add to list item
+        var taskInfoE1 = document.createElement("div");
+        // give it a class name
+        taskInfoE1.className = "task-info";
+
+        taskInfoE1.innerHTML = "<h3 class='task-name'>" + tasks[i].name + "</h3><span class='task-type'>" + tasks[i].type + "</span>";
+
+        listItemE1.appendChild(taskInfoE1);
+
+        var taskActionsE1 = createTaskActions(tasks[i].id);
+
+        listItemE1.appendChild(taskActionsE1);
+
+        if (tasks[i].status === "to do") {
+            listItemE1.querySelector("select[name='status-change']").selectedIndex = 0;
+            tasksToDoE1.appendChild(listItemE1)
+        }
+        else if (tasks[i].status === "in progress") {
+            listItemE1.querySelector("select[name='status-change']").selectedIndex = 1;
+            tasksInProgressE1.appendChild(listItemE1)
+        }
+        else if (tasks[i].status === "complete") {
+            listItemE1.querySelector("select[name='status-change']").selectedIndex = 2;
+            tasksCompletedE1.appendChild(listItemE1)
+        };
+
+        taskIdCounter++;
+    }
 }
 
 pageContentE1.addEventListener("change", taskStatusChangeHandler);
@@ -290,3 +340,7 @@ pageContentE1.addEventListener("dragover", dropZoneDragHandler);
 pageContentE1.addEventListener("drop", dropTaskHandler);
 
 pageContentE1.addEventListener("dragleave", dragLeaveHandler);
+
+pageContentE1.addEventListener("loadTasks", loadTasks);
+
+loadTasks();
